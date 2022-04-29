@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const db = require('../../config/db');
 const usersController = require('./users.controller');
 
 // @desc All Users

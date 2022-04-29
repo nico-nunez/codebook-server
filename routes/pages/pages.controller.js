@@ -1,9 +1,17 @@
 const db = require('../../config/db');
+const { catchAsync } = require('../../utils/error');
+const models = require('../../models/models');
+const queries = require('../../models/queries.models');
 
-module.exports.getAllPages = async (req, res) => {
-	const [result, fields] = await db.query('SELECT * FROM pages');
-	res.status(200).json(result);
-};
+const TABLE = 'pages';
+
+module.exports.getAllPages = catchAsync(async (req, res, next) => {
+	const limit = Math.min(Number(req.query.limit || 20), 100);
+	const page = Math.max(Number(req.query.page || 0), 1);
+	const offset = Math.max(limit * (page - 1) + 1, 1);
+	const allPages = models.findAll(TABLE, { limit, offset });
+	res.status(200).json(allPages);
+});
 
 module.exports.getPageById = async (req, res) => {
 	const { id } = req.params;

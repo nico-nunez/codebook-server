@@ -1,27 +1,34 @@
-const { catchAsync, ExpressError } = require('../../utils/error');
-const usersModel = require('../../models/users.model');
-const utils = require('../../models/utils.model');
+const { catchAsync, throwError } = require('../../utils/error');
+const models = require('../../models/models');
 
 module.exports.getAllUsers = catchAsync(async (req, res, next) => {
-	const allUsers = await usersModel.findAllUsers();
-	res.status(200).json(allUsers);
+	const limit = Math.min(Number(req.query.limit || 20), 100);
+	const page = Math.max(Number(req.query.page || 0), 1);
+	const offset = Math.max(limit * (page - 1) + 1, 1);
+	const allUsers = await models.findAll('users', { limit, offset });
+	const users = allUsers.map((user) => {
+		delete user.hash;
+		return user;
+	});
+	res.status(200).json(users);
 });
 
 module.exports.getUserById = catchAsync(async (req, res, next) => {
 	const { id } = req.params;
-	const user = await usersModel.findUserById(id);
-	if (!user) throw new ExpressError(['User not found'], 404);
+	const user = await models.findOneById('users', id);
+	if (!user) throwError(['User not found'], 404);
+	delete user.hash;
 	res.status(200).json(user);
 });
 
 module.exports.updateUserById = catchAsync(async (req, res, next) => {
 	const { params, body } = req;
-	const userFound = await usersModel.updateUserById(params.id, body);
-	if (!userFound) throw new ExpressError(['User not found.'], 404);
+	const userFound = await models.updateOneById('users', params.id, body);
+	if (!userFound) throwError(['User not found.'], 404);
 	res.status(204).json({});
 });
 
 module.exports.deleteUserById = catchAsync(async (req, res, next) => {
-	await usersModel.deleteUserById(req.params.id);
+	await models.deleteOneById('users', req.params.id);
 	res.status(204).json({});
 });

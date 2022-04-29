@@ -12,6 +12,10 @@ const catchAsync = (func) => {
 	};
 };
 
+const throwError = (messages = [], status = 500) => {
+	throw new ExpressError(messages, status);
+};
+
 const errorHandler = (err, req, res, next) => {
 	if (!err.message) err.message = ['Server error.'];
 	return res
@@ -23,4 +27,5 @@ module.exports = {
 	ExpressError,
 	errorHandler,
 	catchAsync,
+	throwError,
 };

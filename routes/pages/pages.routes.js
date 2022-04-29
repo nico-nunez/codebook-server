@@ -7,11 +7,11 @@ router.get('/', pagesController.getAllPages);
 
 // @desc Page by ID (page only)
 // @route GET
-router.get('/:id/min', pagesController.getPageById);
+router.get('/:id', pagesController.getPageById);
 
 // @desc Page by ID (include cells & tabs)
 // @route GET
-router.get('/:id', pagesController.getPageById);
+router.get('/:id/full', pagesController.getPageById);
 
 // @desc All Pages for User by ID
 // @route GET

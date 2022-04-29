@@ -1,19 +1,20 @@
 const { catchAsync } = require('../../utils/error');
 const bcrypt = require('bcrypt');
-const { randomUUID } = require('crypto');
-const userModel = require('../../models/users.model');
+const randomID = require('../../utils/randomID');
+const models = require('../../models/models');
 
 module.exports.register = catchAsync(async (req, res, next) => {
-	const { email, password, passwordConf, profileName } = req.body;
+	const { email, password, profile_name } = req.body;
 	const salt = await bcrypt.genSalt(10);
 	const hash = await bcrypt.hash(password, salt);
 	const newUser = {
 		email,
-		profileName,
-		profileProvider: 'local',
+		profile_id: randomID(16, 'alphaNumeric', 'mixed'),
+		profile_name: '',
+		profile_provider: 'local',
 		hash,
 	};
-	const user = await userModel.addNewUser(newUser);
+	const user = await models.insertOne('users', newUser);
 	res.status(201).json(user);
 });
 
