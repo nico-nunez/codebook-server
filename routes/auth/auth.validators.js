@@ -37,14 +37,17 @@ const confirmSchema = Joi.string()
 		'any.only': 'Passwords must match.',
 	});
 
-const usernameSchema = Joi.string().max(50).trim().required();
+const profileNameSchema = Joi.string().max(50).trim().required().messages({
+	'string.max': 'profile_name cannot exceed 50 characters.',
+	'string.empty': 'profile_name cannot be empty.',
+});
 
 module.exports.validRegistration = (req, res, next) => {
 	const userSchema = Joi.object({
 		email: emailSchema,
 		password: passwordSchema,
 		confirmPass: confirmSchema,
-		profile_name: usernameSchema,
+		profile_name: profileNameSchema,
 	});
 	validateInput(userSchema, req);
 	return next();
