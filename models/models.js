@@ -27,30 +27,33 @@ module.exports.findOneById = async (table, id = 0) => {
 	}
 };
 
-module.exports.findOneByColumn = async (table, filter = { column: value }) => {
+module.exports.findManyByColumns = async (
+	table,
+	filters = { column: value }
+) => {
 	try {
-		const column = Object.keys(filter)[0];
-		const query = `SELECT * FROM ${table} WHERE ${column}=?`;
-		const [result, fields] = await db.execute(query, [filter[column]]);
-		return result[0];
+		const query = queries.findByColumns(table, filters);
+		const [result, fields] = await db.execute(query, Object.values(filters));
+		return result;
 	} catch (err) {
+		console.log(err);
 		throwError([err.message], 400);
 	}
 };
 
-module.exports.findMany = async (table, filterBy = { filter: value }) => {
-	const columns = Object.keys(filterBy);
+module.exports.findOneByColumns = async (
+	table,
+	filters = { column: value }
+) => {
 	try {
-		const initVal = `SELECT * FROM ${table} WHERE`;
-		const query = columns
-			.reduce((prev, col, i) => {
-				return `${prev} ${col}=${filterBy[col]},`;
-			})
-			.slice(0 - 1);
-
-		const [result, fields] = await db.execute(query);
+		const query = queries.findByColumns(table, filters);
+		const [result, fields] = await db.execute(
+			query + ' LIMIT 1',
+			Object.values(filters)
+		);
 		return result;
 	} catch (err) {
+		console.log(err);
 		throwError([err.message], 400);
 	}
 };
@@ -64,13 +67,15 @@ module.exports.insertOne = async (table, data) => {
 		return savedItem;
 	} catch (err) {
 		if (err.errno === 1062) throwError(['Already exists'], 409);
+		if (err.errno === 1452)
+			throwError(['Forgein key references row that does not exist'], 409);
 		throwError([err.message], 400);
 	}
 };
 
 module.exports.updateOneById = async (table, id, data) => {
 	try {
-		const updateQuery = queries.updateOneById(table, { ...data });
+		const updateQuery = queries.updateOneById(table, data);
 		const values = Object.values(data).map((value) => value || null);
 		const [result, fields] = await db.execute(updateQuery, [...values, id]);
 		return result.affectedRows > 0;

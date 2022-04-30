@@ -12,7 +12,7 @@ const findOrCreateUser = async (
 	emails,
 	provider = 'local'
 ) => {
-	const existingUser = await models.findOneByColumn('users', {
+	const existingUser = await models.findOneByColumns('users', {
 		profile_id: id,
 	});
 	if (existingUser) {
@@ -76,7 +76,7 @@ passport.use(
 	new LocalStratetgy(
 		{ usernameField: 'email' },
 		async (email = '', password = '', done) => {
-			const user = await models.findOneByColumn('users', { email });
+			const user = await models.findOneByColumns('users', { email });
 			const match = user && (await bcrypt.compare(password, user.hash));
 			if (!match) {
 				const error = new ExpressError(['Invalid credentials'], 400);
