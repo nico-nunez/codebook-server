@@ -1,6 +1,6 @@
 const { catchAsync } = require('../../utils/error');
 const models = require('../../models/models');
-const { pagination } = require('../../utils/pagination');
+const { pagination } = require('../../utils/utils');
 
 const TABLE = 'tabs';
 

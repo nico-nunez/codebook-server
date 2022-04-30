@@ -1,10 +1,9 @@
 const { catchAsync, throwError } = require('../../utils/error');
 const models = require('../../models/models');
+const { pagination } = require('../../utils/utils');
 
 module.exports.getAllUsers = catchAsync(async (req, res, next) => {
-	const limit = Math.min(Number(req.query.limit || 20), 100);
-	const page = Math.max(Number(req.query.page || 0), 1);
-	const offset = Math.max(limit * (page - 1), 0);
+	const { page, limit, offset } = pagination(req.query.page, req.query.limit);
 	const allUsers = await models.findAll('users', { limit, offset });
 	const users = allUsers.map((user) => {
 		delete user.hash;
