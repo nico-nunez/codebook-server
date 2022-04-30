@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth/auth.routes');
 const usersRoutes = require('./routes/users/users.routes');
 const pagesRoutes = require('./routes/pages/pages.routes');
 const cellsRoutes = require('./routes/cells/cells.routes');
+const tabsRoutes = require('./routes/tabs/tabs.routes');
 
 app.use(express.json());
 
@@ -14,6 +15,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/pages', pagesRoutes);
 app.use('/api/cells', cellsRoutes);
+app.use('/api/tabs', tabsRoutes);
 
 app.get('/', (req, res) => {
 	res.send('hello');

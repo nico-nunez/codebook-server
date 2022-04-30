@@ -19,9 +19,11 @@ module.exports.insertOne = (table, item) => {
 module.exports.updateOneById = (table, data = {}) => {
 	let columns = Object.keys(data);
 	const initVal = `UPDATE ${table} SET`;
-	const result = columns.reduce((prev, col) => {
-		return `${prev} ${col}=?`;
-	}, initVal);
+	const result = columns
+		.reduce((prev, col) => {
+			return `${prev} ${col}=?,`;
+		}, initVal)
+		.slice(0, -1);
 	return result + ' WHERE id=?';
 };
 

@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const cellsController = require('./cells.controllers');
+const cellsController = require('./cells.controller');
 
 // @desc All Cells
 // @route GET

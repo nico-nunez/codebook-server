@@ -1,7 +1,5 @@
-const db = require('../../config/db');
 const { catchAsync } = require('../../utils/error');
 const models = require('../../models/models');
-const queries = require('../../models/queries.models');
 const { pagination } = require('../../utils/pagination');
 
 const TABLE = 'cells';

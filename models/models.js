@@ -76,6 +76,7 @@ module.exports.insertOne = async (table, data) => {
 module.exports.updateOneById = async (table, id, data) => {
 	try {
 		const updateQuery = queries.updateOneById(table, data);
+		console.log(updateQuery);
 		const values = Object.values(data).map((value) => value || null);
 		const [result, fields] = await db.execute(updateQuery, [...values, id]);
 		return result.affectedRows > 0;
