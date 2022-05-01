@@ -10,9 +10,10 @@ module.exports.getAllCells = catchAsync(async (req, res, next) => {
 	res.status(200).json(cells);
 });
 
-module.exports.insertCell = catchAsync(async (req, res, next) => {
-	const newCell = await models.insertOne(TABLE, req.body);
-	res.status(201).json(newCell);
+module.exports.insertCellByPageId = catchAsync(async (req, res, next) => {
+	const newCell = { ...req.body, page_id: req.params.id };
+	const insertedCell = await models.insertOne(TABLE, newCell);
+	res.status(201).json(insertedCell);
 });
 
 module.exports.getCellById = catchAsync(async (req, res, next) => {
@@ -20,10 +21,10 @@ module.exports.getCellById = catchAsync(async (req, res, next) => {
 	res.status(200).json(cell);
 });
 
-module.exports.updateCellById = catchAsync(async (req, res, next) => {
-	const { id } = req.params;
-	const { order_index } = req.body;
-	await models.updateOneById(TABLE, id, { order_index });
+module.exports.updateOrderByPageId = catchAsync(async (req, res, next) => {
+	const page_id = req.params.id;
+	const { cells_order } = req.body;
+	await models.updateOrderIndexes(TABLE, page_id, cells_order);
 	res.status(204).json({});
 });
 

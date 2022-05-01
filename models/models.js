@@ -93,3 +93,13 @@ module.exports.deleteOneById = async (table = '', id = 0) => {
 		throwError([err.message], 400);
 	}
 };
+
+module.exports.updateOrderIndexes = async (table, id, idArr = []) => {
+	try {
+		const query = queries.updateOrderIndex(table);
+		const [result, fields] = await db.query(query, [idArr, id]);
+		return result.affectedRows > 0;
+	} catch (err) {
+		throwError([err.message], 400);
+	}
+};

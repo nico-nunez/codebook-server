@@ -35,3 +35,9 @@ module.exports.findByColumns = (table, data = {}) => {
 	}, initVal);
 	return query.slice(0, -1);
 };
+
+module.exports.updateOrderIndex = (table) => {
+	const foreignId = table === 'cells' ? 'cells.page_id' : 'tabs.cell_id';
+	const query = `UPDATE ${table} SET order_index = FIELD(id,?) WHERE ${foreignId}=?`;
+	return query;
+};

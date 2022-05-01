@@ -11,8 +11,12 @@ module.exports.getAllTabs = catchAsync(async (req, res, next) => {
 });
 
 module.exports.insertTab = catchAsync(async (req, res, next) => {
-	const newCell = await models.insertOne(TABLE, req.body);
-	res.status(201).json(newCell);
+	const newTab = {
+		cell_id: req.params.id,
+		code_language: req.body.code_language,
+	};
+	const insertedTab = await models.insertOne(TABLE, newTab);
+	res.status(201).json(insertedTab);
 });
 
 module.exports.getTabById = catchAsync(async (req, res, next) => {
@@ -20,9 +24,10 @@ module.exports.getTabById = catchAsync(async (req, res, next) => {
 	res.status(200).json(cell);
 });
 
-module.exports.updateTabById = catchAsync(async (req, res, next) => {
-	const { id } = req.params;
-	await models.updateOneById(TABLE, id, req.body);
+module.exports.updateTabsOrderByCellId = catchAsync(async (req, res, next) => {
+	const cell_id = req.params.id;
+	const { tabs_order } = req.body;
+	await models.updateOrderIndexes(TABLE, cell_id, tabs_order);
 	res.status(204).json({});
 });
 
