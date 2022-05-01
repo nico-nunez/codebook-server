@@ -1,4 +1,4 @@
-const db = require('../../config/db');
+const { db } = require('../../config/db');
 const { catchAsync } = require('../../utils/error');
 const models = require('../../models/models');
 const { pagination } = require('../../utils/utils');

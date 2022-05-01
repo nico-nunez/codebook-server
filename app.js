@@ -1,15 +1,21 @@
 const express = require('express');
 const app = express();
-const { errorHandler } = require('./utils/error');
-require('./middleware/passport');
+const { errorHandler, throwError } = require('./utils/error');
+const session = require('express-session');
+const passport = require('passport');
+const { sessionConfig } = require('./config/db');
 
-const authRoutes = require('./routes/auth/auth.routes');
-const usersRoutes = require('./routes/users/users.routes');
-const pagesRoutes = require('./routes/pages/pages.routes');
-const cellsRoutes = require('./routes/cells/cells.routes');
-const tabsRoutes = require('./routes/tabs/tabs.routes');
+const authRoutes = require('./routes/auth/auth.router');
+const usersRoutes = require('./routes/users/users.router');
+const pagesRoutes = require('./routes/pages/pages.router');
+const cellsRoutes = require('./routes/cells/cells.router');
+const tabsRoutes = require('./routes/tabs/tabs.router');
 
 app.use(express.json());
+app.use(session(sessionConfig));
+app.use(passport.initialize());
+app.use(passport.session());
+require('./middleware/passport');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', usersRoutes);
@@ -21,11 +27,8 @@ app.get('/', (req, res) => {
 	res.send('hello');
 });
 
-app.get('*', (req, res) => {
-	res.status(404).send('Not Found');
-});
-app.post('*', (req, res) => {
-	res.status(404).send('Not Found');
+app.all('*', (req, res, next) => {
+	throwError(['Page Not Foudn', 404]);
 });
 
 app.use(errorHandler);

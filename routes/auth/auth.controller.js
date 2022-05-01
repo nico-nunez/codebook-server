@@ -37,3 +37,8 @@ module.exports.githubAuth = (req, res) => {
 module.exports.githubCallback = (req, res) => {
 	res.status(200).json(req.user);
 };
+
+module.exports.logout = (req, res) => {
+	req.logout();
+	res.status(204).json();
+};

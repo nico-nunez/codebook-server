@@ -20,7 +20,7 @@ const errorHandler = (err, req, res, next) => {
 	if (!err.message) err.message = ['Server error.'];
 	return res
 		.status(err.status || 500)
-		.json({ error: { messages: err.message } });
+		.json({ error: { messages: err.message, stack: err.stack } });
 };
 
 module.exports = {

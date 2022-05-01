@@ -14,6 +14,9 @@ router.post(
 	authController.localLogin
 );
 
+// @desc: Log out
+router.get('/logout', authController.logout);
+
 // @desc: Google Oauth (initiate)
 router.get(
 	'/google',

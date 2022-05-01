@@ -1,4 +1,6 @@
 const mysql = require('mysql2/promise');
+const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
 
 const connectionPool = () => {
 	const pool = mysql.createPool({
@@ -11,4 +13,20 @@ const connectionPool = () => {
 	return pool;
 };
 
-module.exports = connectionPool();
+module.exports.db = connectionPool();
+
+const sessionStore = new MySQLStore({}, this.db);
+
+module.exports.sessionConfig = {
+	store: sessionStore,
+	secret: process.env.SESSIONS_SECRET,
+	name: 'appSession',
+	resave: false,
+	saveUninitialized: true,
+	cookie: {
+		secure: process.env.NODE_ENV === 'production',
+		expires: 1000 * 60 * 60 * 24 * 7 * 2,
+	},
+};
+
+// module.exports = connectionPool();

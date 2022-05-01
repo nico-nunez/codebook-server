@@ -41,3 +41,7 @@ module.exports.updateOrderIndex = (table) => {
 	const query = `UPDATE ${table} SET order_index = FIELD(id,?) WHERE ${foreignId}=?`;
 	return query;
 };
+
+module.exports.findAuthorById = (table) => {
+	return `SELECT DISTINCT users.id, users.profile_id, users.profile_name FROM users JOIN pages ON pages.user_id=users.id LEFT JOIN cells ON cells.page_id=pages.id LEFT JOIN tabs ON tabs.cell_id=cells.id WHERE ${table}.id=?`;
+};

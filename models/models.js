@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const { db } = require('../config/db');
 const { throwError } = require('../utils/error');
 const queries = require('./queries.models');
 
@@ -17,7 +17,7 @@ module.exports.findAll = async (table, options = findAllOptions) => {
 	}
 };
 
-module.exports.findOneById = async (table, id = 0) => {
+module.exports.findOneById = async (table, id) => {
 	try {
 		const findQuery = `SELECT * FROM ${table} WHERE id=?`;
 		const [result, fields] = await db.execute(findQuery, [id]);
@@ -51,7 +51,7 @@ module.exports.findOneByColumns = async (
 			query + ' LIMIT 1',
 			Object.values(filters)
 		);
-		return result;
+		return result[0];
 	} catch (err) {
 		console.log(err);
 		throwError([err.message], 400);
@@ -84,7 +84,7 @@ module.exports.updateOneById = async (table, id, data) => {
 	}
 };
 
-module.exports.deleteOneById = async (table = '', id = 0) => {
+module.exports.deleteOneById = async (table, id) => {
 	try {
 		const deleteQuery = `DELETE FROM ${table} WHERE id=?`;
 		const [result, fields] = await db.execute(deleteQuery, [id]);
@@ -99,6 +99,17 @@ module.exports.updateOrderIndexes = async (table, id, idArr = []) => {
 		const query = queries.updateOrderIndex(table);
 		const [result, fields] = await db.query(query, [idArr, id]);
 		return result.affectedRows > 0;
+	} catch (err) {
+		throwError([err.message], 400);
+	}
+};
+
+module.exports.findAuthorById = async (table, id) => {
+	try {
+		const query = queries.findAuthorById(table);
+		const [result, fields] = await db.execute(query, [id]);
+		if (!result[0]) return;
+		return result[0];
 	} catch (err) {
 		throwError([err.message], 400);
 	}
