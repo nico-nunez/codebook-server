@@ -9,13 +9,18 @@ const { validCellUpdate } = require('./cells.validators');
 router
 	.route('/:cell_id')
 	.get(isLoggedIn, controller.getCellById)
-	.put(isAuthor, validCellUpdate, controller.updateCellById)
-	.delete(isAuthor, controller.deleteCellById);
+	.put(isLoggedIn, isAuthor, validCellUpdate, controller.updateCellById)
+	.delete(isLoggedIn, isAuthor, controller.deleteCellById);
 
 router
 	.route('/:cell_id/tabs')
 	.get(isLoggedIn, controller.getAllTabsByCellId)
-	.post(isAuthor, validTab, controller.insertTabByCellId)
-	.put(isAuthor, validTabsOrder, controller.updateTabsOrderByCellId);
+	.post(isLoggedIn, isAuthor, validTab, controller.insertTabByCellId)
+	.put(
+		isLoggedIn,
+		isAuthor,
+		validTabsOrder,
+		controller.updateTabsOrderByCellId
+	);
 
 module.exports = router;

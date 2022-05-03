@@ -8,8 +8,8 @@ router.route('/').get(controller.getAllUsers);
 router
 	.route('/:user_id')
 	.get(isLoggedIn, controller.getUserById)
-	.put(isUser, validUserUpdate, controller.updateUserById)
-	.delete(isUser, controller.deleteUserById);
+	.put(isLoggedIn, isUser, validUserUpdate, controller.updateUserById)
+	.delete(isLoggedIn, isUser, controller.deleteUserById);
 
 router.route('/:user_id/pages').get(controller.getPagesByUserId);
 

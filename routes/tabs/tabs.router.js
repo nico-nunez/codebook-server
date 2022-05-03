@@ -7,7 +7,7 @@ const { isLoggedIn, isAuthor } = require('../../middleware/validators');
 router
 	.route('/:tab_id')
 	.get(isLoggedIn, controller.getTabById)
-	.put(isAuthor, controller.updateTabById)
-	.delete(isAuthor, controller.deleteTabById);
+	.put(isLoggedIn, isAuthor, controller.updateTabById)
+	.delete(isLoggedIn, isAuthor, controller.deleteTabById);
 
 module.exports = router;

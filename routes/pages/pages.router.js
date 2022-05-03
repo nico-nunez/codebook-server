@@ -12,13 +12,13 @@ router
 router
 	.route('/:page_id')
 	.get(controller.getPageById)
-	.put(isAuthor, validPage, controller.updatePageById)
-	.delete(isAuthor, controller.deletePageById);
+	.put(isLoggedIn, isAuthor, validPage, controller.updatePageById)
+	.delete(isLoggedIn, isAuthor, controller.deletePageById);
 
 router
 	.route('/:page_id/cells')
 	.get(isLoggedIn, controller.getCellsByPageId)
-	.post(isAuthor, validCell, controller.insertCellByPageId)
-	.put(isAuthor, validCellsOrder, controller.updateCellsOrder);
+	.post(isLoggedIn, isAuthor, validCell, controller.insertCellByPageId)
+	.put(isLoggedIn, isAuthor, validCellsOrder, controller.updateCellsOrder);
 
 module.exports = router;
