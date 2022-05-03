@@ -4,6 +4,7 @@ const { errorHandler, throwError } = require('./utils/error');
 const session = require('express-session');
 const passport = require('passport');
 const { sessionConfig } = require('./config/db');
+const helmet = require('helmet');
 
 const authRoutes = require('./routes/auth/auth.router');
 const usersRoutes = require('./routes/users/users.router');
@@ -11,6 +12,7 @@ const pagesRoutes = require('./routes/pages/pages.router');
 const cellsRoutes = require('./routes/cells/cells.router');
 const tabsRoutes = require('./routes/tabs/tabs.router');
 
+app.use(helmet());
 app.use(express.json());
 app.use(session(sessionConfig));
 app.use(passport.initialize());
@@ -28,7 +30,7 @@ app.get('/', (req, res) => {
 });
 
 app.all('*', (req, res, next) => {
-	throwError(['Page Not Foudn', 404]);
+	throwError(['Page Not Found'], 404);
 });
 
 app.use(errorHandler);

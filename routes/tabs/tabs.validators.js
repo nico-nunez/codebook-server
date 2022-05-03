@@ -8,6 +8,7 @@ const languageSchema = Joi.string()
 	.required()
 	.messages({
 		'any.required': 'code_language is required',
+		'any.only': '"code_language" must be one of [html, css, javascript] only',
 	});
 
 const orderSchema = Joi.array()
@@ -21,6 +22,7 @@ const orderSchema = Joi.array()
 module.exports.validTab = (req, res, next) => {
 	const tabSchema = Joi.object({
 		code_language: languageSchema,
+		content: Joi.string().trim(),
 	});
 	validateInput(tabSchema, req);
 	return next();

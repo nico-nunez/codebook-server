@@ -1,3 +1,4 @@
+const { table } = require('console');
 const { db } = require('../config/db');
 const { throwError } = require('../utils/error');
 const queries = require('./queries.models');
@@ -72,6 +73,17 @@ module.exports.insertOne = async (table, data) => {
 		throwError([err.message], 400);
 	}
 };
+
+//TODO ???
+// module.exports.insertMany = async (table, data = []) => {
+// 	try {
+// 		const insertQuery = queries.insertMany(table, data);
+// 		const values = data.map((item) => Object.values(item));
+// 		return values;
+// 	} catch (err) {
+// 		throwError([err.message], 400);
+// 	}
+// };
 
 module.exports.updateOneById = async (table, id, data) => {
 	try {

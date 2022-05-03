@@ -11,7 +11,6 @@ const emailSchema = Joi.string()
 	.trim()
 	.lowercase()
 	.messages({
-		'any.required': 'email or profile_name required',
 		'string.email': 'Invalid email.',
 	});
 
@@ -20,12 +19,15 @@ const profileNameSchema = Joi.string().max(50).trim().messages({
 	'string.empty': 'profile_name cannot be empty.',
 });
 
-module.exports.validUserData = (req, res, next) => {
-	const { profile_name, email } = req.body;
-	const userSchema = Joi.object({
-		email: profile_name ? emailSchema : emailSchema.required(),
+module.exports.validUserUpdate = (req, res, next) => {
+	const updateSchema = Joi.object({
+		email: emailSchema,
 		profile_name: profileNameSchema,
-	});
-	validateInput(userSchema, req);
+	})
+		.min(1)
+		.messages({
+			'object.min': `Must include at least email or profile name.`,
+		});
+	validateInput(updateSchema, req);
 	return next();
 };

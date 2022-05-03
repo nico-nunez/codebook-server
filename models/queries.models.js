@@ -1,9 +1,8 @@
-module.exports.insertMany = (table, items = []) => {
-	const columns = Object.keys(items[0]);
-	const len = columns.length;
-	const placeHolders = '?, '.repeat(len).slice(0, -2);
+module.exports.insertMany = (table, data = []) => {
+	const columns = Object.keys(data[0]);
+	// const placeHolders = '?, '.repeat(columns.length).slice(0, -2);
 	const queryBase = `INSERT INTO ${table}(${columns.join(', ')}) VALUES`;
-	const queryValues = ` (${placeHolders}),`.repeat(len).slice(0, -1);
+	const queryValues = ` (?),`.repeat(data.length).slice(0, -1);
 	return queryBase + queryValues;
 };
 

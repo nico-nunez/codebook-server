@@ -4,6 +4,7 @@ const { throwError } = require('./error');
 module.exports.validateInput = (joiSchema, req) => {
 	const { value, error } = joiSchema.validate(req.body);
 	if (error) {
+		// console.log(error.details);
 		const messages = error.details.map((err) => err.message).join(',');
 		throwError(messages, 400);
 	}

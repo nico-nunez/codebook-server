@@ -1,34 +1,24 @@
 const router = require('express').Router();
-const pagesController = require('./pages.controller');
+const controller = require('./pages.controller');
 const { validPage } = require('./pages.validators');
+const { validCell, validCellsOrder } = require('../cells/cells.validators');
 const { isAuthor, isLoggedIn } = require('../../middleware/validators');
 
-// @desc All Pages
-// @route Public
-router.get('/', pagesController.getAllPages);
+router
+	.route('/')
+	.get(controller.getAllPages)
+	.post(isLoggedIn, validPage, controller.insertPage);
 
-// @desc Insert New Page
-// @route Private
-router.post('/', isLoggedIn, validPage, pagesController.insertPage);
+router
+	.route('/:page_id')
+	.get(controller.getPageById)
+	.put(isAuthor, validPage, controller.updatePageById)
+	.delete(isAuthor, controller.deletePageById);
 
-// @desc Page by ID (page only)
-// @route Public
-router.get('/:id', pagesController.getPageByIdMin);
-
-// @desc Page by ID (cells & tabs)
-// @route Public
-router.get('/:id/full', pagesController.getPageByIdFull);
-
-// @desc All Pages for User by ID
-// @route Private
-router.get('/users/:id', isLoggedIn, pagesController.getPagesByUser);
-
-// @desc Update Page by ID
-// @route Private (strict)
-router.put('/:id', isAuthor, validPage, pagesController.updatePageById);
-
-// @desc Delete Page by ID
-// @route Private (strict)
-router.delete('/:id', isAuthor, pagesController.deletePageById);
+router
+	.route('/:page_id/cells')
+	.get(isLoggedIn, controller.getCellsByPageId)
+	.post(isAuthor, validCell, controller.insertCellByPageId)
+	.put(isAuthor, validCellsOrder, controller.updateCellsOrder);
 
 module.exports = router;

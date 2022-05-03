@@ -1,22 +1,16 @@
 const router = require('express').Router();
-const usersController = require('./users.controller');
+const controller = require('./users.controller');
 const { isLoggedIn, isUser } = require('../../middleware/validators');
-const { validUserData } = require('./users.validtors');
+const { validUserUpdate } = require('./users.validtors');
 
-// @desc All Users
-// @route Public
-router.get('/', usersController.getAllUsers);
+router.route('/').get(controller.getAllUsers);
 
-// @desc User by ID
-// @route Private
-router.get('/:id', isLoggedIn, usersController.getUserById);
+router
+	.route('/:user_id')
+	.get(isLoggedIn, controller.getUserById)
+	.put(isUser, validUserUpdate, controller.updateUserById)
+	.delete(isUser, controller.deleteUserById);
 
-// @desc Update User
-// @route Private (strict)
-router.put('/:id', isUser, validUserData, usersController.updateUserById);
-
-// @desc Delete User
-// @route Private (strict)
-router.delete('/:id', isUser, usersController.deleteUserById);
+router.route('/:user_id/pages').get(controller.getPagesByUserId);
 
 module.exports = router;

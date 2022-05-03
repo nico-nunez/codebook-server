@@ -18,13 +18,13 @@ CREATE TABLE pages(
   page_name VARCHAR(255),
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  user_id INT,
+  user_id INT NOT NULL,
   FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 CREATE TABLE cells(
   id INT AUTO_INCREMENT PRIMARY KEY,
-  page_id INT,
+  page_id INT NOT NULL,
   cell_type ENUM('code', 'text'),
   order_index INT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
@@ -34,7 +34,7 @@ CREATE TABLE cells(
 
 CREATE TABLE tabs(
   id INT AUTO_INCREMENT PRIMARY KEY,
-  cell_id INT,
+  cell_id INT NOT NULL,
   code_language ENUM('javascript', 'html', 'css' ) NOT NULL,
   order_index INT NOT NULL,
   created_at TIMESTAMP DEFAULT NOW(),
