@@ -1,21 +1,22 @@
-const router = require('express').Router();
 const passport = require('passport');
-const authController = require('./auth.controller');
+const router = require('express').Router();
+const controller = require('./auth.controller');
+const { isLoggedIn } = require('../../middleware/validators');
 const { validRegistration, validLogin } = require('./auth.validators');
 
 // @desc: Local regisitration
-router.post('/register', validRegistration, authController.register);
+router.post('/register', validRegistration, controller.register);
 
 // @desc: Local login
 router.post(
 	'/login',
 	validLogin,
 	passport.authenticate('local', { failWithError: true }),
-	authController.localLogin
+	controller.localLogin
 );
 
 // @desc: Log out
-router.get('/logout', authController.logout);
+router.get('/logout', controller.logout);
 
 // @desc: Google Oauth (initiate)
 router.get(
@@ -23,14 +24,14 @@ router.get(
 	passport.authenticate('google', {
 		scope: ['profile'],
 	}),
-	authController.googleAuth
+	controller.googleAuth
 );
 
 // @desc: Google Oauth (callback)
 router.get(
 	'/google/callback',
 	passport.authenticate('google', { failWithError: true }),
-	authController.googleCallback
+	controller.googleCallback
 );
 
 // @desc: Github Oauth (initiate)
@@ -45,7 +46,9 @@ router.get(
 router.get(
 	'/github/callback',
 	passport.authenticate('github', { failWithError: true }),
-	authController.githubCallback
+	controller.githubCallback
 );
+
+router.get('/authenticate_session', controller.authenticateSession);
 
 module.exports = router;

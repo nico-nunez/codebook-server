@@ -39,7 +39,7 @@ const confirmSchema = Joi.string()
 
 const profileNameSchema = Joi.string().max(50).trim().required().messages({
 	'string.max': 'profile_name cannot exceed 50 characters.',
-	'string.empty': 'profile_name cannot be empty.',
+	'string.empty': 'profile_name is required.',
 });
 
 module.exports.validRegistration = (req, res, next) => {

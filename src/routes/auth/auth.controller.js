@@ -42,3 +42,9 @@ module.exports.logout = (req, res) => {
 	req.logout();
 	res.status(204).json();
 };
+
+module.exports.authenticateSession = (req, res, next) => {
+	const user = { ...req.user } || {};
+	delete user.hash;
+	res.status(200).json(user);
+};
