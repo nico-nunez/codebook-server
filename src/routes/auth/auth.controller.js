@@ -9,12 +9,13 @@ module.exports.register = catchAsync(async (req, res, next) => {
 	const hash = await bcrypt.hash(password, salt);
 	const newUser = {
 		email,
-		profile_id: randomID(16, 'alphaNumeric', 'mixed'),
-		profile_name: '',
+		profile_id: randomID(19, 'alphaNumeric', 'mixed'),
+		profile_name,
 		profile_provider: 'local',
 		hash,
 	};
 	const user = await models.insertOne('users', newUser);
+	if (user) delete user.hash;
 	res.status(201).json(user);
 });
 
