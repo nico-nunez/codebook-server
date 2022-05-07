@@ -4,6 +4,8 @@ const controller = require('./auth.controller');
 const { isLoggedIn } = require('../../middleware/validators');
 const { validRegistration, validLogin } = require('./auth.validators');
 
+const CLIENT_HOMEPAGE = 'http://localhost:3000';
+
 // @desc: Local regisitration
 router.post('/register', validRegistration, controller.register);
 
@@ -23,14 +25,17 @@ router.get(
 	'/google',
 	passport.authenticate('google', {
 		scope: ['profile'],
-	}),
-	controller.googleAuth
+	})
 );
 
 // @desc: Google Oauth (callback)
 router.get(
 	'/google/callback',
-	passport.authenticate('google', { failWithError: true }),
+	passport.authenticate('google', {
+		successRedirect: CLIENT_HOMEPAGE,
+		failureRedirect: CLIENT_HOMEPAGE,
+		failWithError: true,
+	}),
 	controller.googleCallback
 );
 
@@ -45,8 +50,11 @@ router.get(
 // @desc: Github Oauth (callback)
 router.get(
 	'/github/callback',
-	passport.authenticate('github', { failWithError: true }),
-	controller.githubCallback
+	passport.authenticate('github', {
+		successRedirect: CLIENT_HOMEPAGE,
+		failureRedirect: CLIENT_HOMEPAGE,
+		failWithError: true,
+	})
 );
 
 router.get('/authenticate_session', controller.authenticateSession);

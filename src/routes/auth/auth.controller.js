@@ -23,16 +23,8 @@ module.exports.localLogin = (req, res, next) => {
 	res.status(200).json(req.user);
 };
 
-module.exports.googleAuth = (req, res) => {
-	res.send('oauth flow start');
-};
-
 module.exports.googleCallback = (req, res) => {
 	res.status(200).json(req.user);
-};
-
-module.exports.githubAuth = (req, res) => {
-	res.send('oauth flow start');
 };
 
 module.exports.githubCallback = (req, res) => {
