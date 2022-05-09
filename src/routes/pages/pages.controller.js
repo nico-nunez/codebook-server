@@ -23,10 +23,31 @@ module.exports.getPageById = catchAsync(async (req, res, next) => {
 });
 
 module.exports.insertPage = catchAsync(async (req, res, next) => {
-	const { page_name = null } = req.body;
+	const { page_name, cells, tabs } = req.body;
 	const user_id = req.user.id;
-	const page = await models.insertOne('pages', { page_name, user_id });
-	res.status(201).json(page);
+	let savedCells, savedTabs;
+	const page = await models.insertOne('pages', {
+		page_name,
+		user_id,
+	});
+	if (!page) throwError('page does not exist', 404);
+	if (cells && cells.length > 0) {
+		const modifiedCells = cells.map((cell) => {
+			const { cell_type, content } = { ...cell };
+			return { cell_type, content, page_id: page.id };
+		});
+		savedCells = await models.insertMany('cells', modifiedCells);
+	}
+	if (tabs && tabs.length > 0) {
+		const codeCell = savedCells.find((cell) => cell.cell_type === 'code');
+		if (!codeCell) throwError('code cell does not exist', 404);
+		const modifiedTabs = tabs.map((tab) => {
+			const { code_language, content } = { ...tab };
+			return { code_language, content, cell_id: codeCell.id };
+		});
+		savedTabs = await models.insertMany('tabs', modifiedTabs);
+	}
+	res.status(201).json({ page, cells: savedCells, tabs: savedTabs });
 });
 
 module.exports.updatePageById = catchAsync(async (req, res, next) => {
@@ -50,8 +71,13 @@ module.exports.getCellsByPageId = catchAsync(async (req, res, next) => {
 });
 
 module.exports.insertCellByPageId = catchAsync(async (req, res, next) => {
-	const { page_id = null } = req.params;
-	const newCell = await models.insertOne('cells', { ...req.body, page_id });
+	const { page_id } = req.params;
+	const { cell_type, content } = req.body;
+	const newCell = await models.insertOne('cells', {
+		cell_type,
+		content,
+		page_id,
+	});
 	res.status(201).json(newCell);
 });
 

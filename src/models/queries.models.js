@@ -1,6 +1,5 @@
 module.exports.insertMany = (table, data = []) => {
 	const columns = Object.keys(data[0]);
-	// const placeHolders = '?, '.repeat(columns.length).slice(0, -2);
 	const queryBase = `INSERT INTO ${table}(${columns.join(', ')}) VALUES`;
 	const queryValues = ` (?),`.repeat(data.length).slice(0, -1);
 	return queryBase + queryValues;

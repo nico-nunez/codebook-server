@@ -1,4 +1,3 @@
-const { table } = require('console');
 const { db } = require('../config/db');
 const { throwError } = require('../utils/error');
 const queries = require('./queries.models');
@@ -34,7 +33,7 @@ module.exports.findManyByColumns = async (
 ) => {
 	try {
 		const query = queries.findByColumns(table, filters);
-		const [result, fields] = await db.execute(query, Object.values(filters));
+		const [result, fields] = await db.query(query, Object.values(filters));
 		return result;
 	} catch (err) {
 		console.log(err);
@@ -63,7 +62,7 @@ module.exports.insertOne = async (table, data) => {
 	try {
 		const insertQuery = queries.insertOne(table, data);
 		const values = Object.values(data).map((value) => value || null);
-		const [result, fields] = await db.execute(insertQuery, values);
+		const [result, fields] = await db.query(insertQuery, values);
 		const savedItem = await this.findOneById(table, result.insertId);
 		return savedItem;
 	} catch (err) {
@@ -74,16 +73,29 @@ module.exports.insertOne = async (table, data) => {
 	}
 };
 
-//TODO ???
-// module.exports.insertMany = async (table, data = []) => {
-// 	try {
-// 		const insertQuery = queries.insertMany(table, data);
-// 		const values = data.map((item) => Object.values(item));
-// 		return values;
-// 	} catch (err) {
-// 		throwError([err.message], 400);
-// 	}
-// };
+module.exports.insertMany = async (table, data = []) => {
+	try {
+		const insertQuery = queries.insertMany(table, data);
+		const values = data.map((item) => Object.values(item));
+		const [{ insertId, affectedRows }, fields] = await db.query(
+			insertQuery,
+			values
+		);
+		const insertedIds = [];
+		if (!insertId || !affectedRows) throwError('Unable to insert rows', 500);
+		for (i = 0; i < affectedRows; i++) insertedIds.push(insertId + i);
+		const [result, fields1] = await db.query(
+			`SELECT * FROM ${table} WHERE id IN (?)`,
+			[insertedIds]
+		);
+		return result;
+	} catch (err) {
+		if (err.errno === 1062) throwError(['Already exists'], 409);
+		if (err.errno === 1452)
+			throwError(['Forgein key references row that does not exist'], 409);
+		throwError([err.message], 400);
+	}
+};
 
 module.exports.updateOneById = async (table, id, data) => {
 	try {

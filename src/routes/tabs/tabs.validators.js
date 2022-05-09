@@ -15,16 +15,19 @@ const orderSchema = Joi.array()
 	.items(Joi.number().required())
 	.required()
 	.messages({
-		'any.required': 'cells_order is required',
+		'any.required': 'tabs_order is required',
 		'number.base': 'Must be an array of numbers (id).',
 	});
 
+module.exports.tabSchema = Joi.object({
+	id: Joi.number(),
+	code_language: languageSchema,
+	content: Joi.string().trim(),
+	cell_id: Joi.number(),
+});
+
 module.exports.validTab = (req, res, next) => {
-	const tabSchema = Joi.object({
-		code_language: languageSchema,
-		content: Joi.string().trim(),
-	});
-	validateInput(tabSchema, req);
+	validateInput(this.tabSchema, req);
 	return next();
 };
 

@@ -16,19 +16,28 @@ const orderSchema = Joi.array().items(Joi.number().required()).messages({
 	'number.base': 'Must be an array of numbers (id).',
 });
 
-const contentSchema = Joi.string().trim();
-const forbidContentSchema = Joi.any().forbidden().messages({
-	'any.unknown':
-		'"content" not allowed for cell_type [code]. Update tab content instead',
+const contentSchema = Joi.custom((val, helpers) => {
+	const { cell_type } = helpers.state.ancestors[0];
+	if (cell_type === 'text') return val.trim();
+	if (val !== null) return helpers.error('any.invalid');
+	return null;
+})
+	.required()
+	.messages({
+		'any.invalid':
+			'"content" not allowed for cell_type [code]. Update tab content instead',
+		'any.required': '"content" is required for all cells.',
+	});
+
+module.exports.cellSchema = Joi.object({
+	id: Joi.number(),
+	cell_type: cellTypeSchema,
+	content: contentSchema,
+	page_id: Joi.number(),
 });
 
 module.exports.validCell = (req, res, next) => {
-	const cellType = req.body.cell_type;
-	const insertSchema = Joi.object({
-		cell_type: cellTypeSchema,
-		content: cellType === 'text' ? contentSchema : forbidContentSchema,
-	});
-	validateInput(insertSchema, req);
+	validateInput(this.cellSchema, req);
 	return next();
 };
 module.exports.validCellUpdate = (req, res, next) => {
