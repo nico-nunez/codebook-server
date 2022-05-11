@@ -16,8 +16,8 @@ module.exports.getTabById = catchAsync(async (req, res, next) => {
 
 module.exports.updateTabById = catchAsync(async (req, res, next) => {
 	const { tab_id } = req.params;
-	const { code_language, content } = req.body;
-	await models.updateOneById('tabs', tab_id, { code_language, content });
+	const { content } = req.body;
+	await models.updateOneById('tabs', tab_id, { content });
 	res.status(204).json();
 });
 

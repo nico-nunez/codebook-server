@@ -32,8 +32,9 @@ module.exports.githubCallback = (req, res) => {
 };
 
 module.exports.logout = (req, res) => {
+	console.log('got here');
 	req.logout();
-	res.status(204).json();
+	res.redirect('http://localhost:3000');
 };
 
 module.exports.authenticateSession = (req, res, next) => {

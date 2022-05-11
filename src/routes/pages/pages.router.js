@@ -12,7 +12,8 @@ router
 router
 	.route('/:page_id')
 	.get(controller.getPageById)
-	.put(isLoggedIn, isAuthor, validPage, controller.updatePageById)
+	.put(isLoggedIn, isAuthor, validPage, controller.updateFullPageById)
+	.patch(isLoggedIn, isAuthor, validPage, controller.updatePageById)
 	.delete(isLoggedIn, isAuthor, controller.deletePageById);
 
 router

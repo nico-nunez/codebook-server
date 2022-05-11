@@ -10,11 +10,11 @@ const pageNameSchema = Joi.string().max(50).trim().required().messages({
 });
 
 module.exports.validPage = (req, res, next) => {
-	const updateSchema = Joi.object({
+	const pageSchema = Joi.object({
 		page_name: pageNameSchema,
 		cells: Joi.array().items(cellSchema),
 		tabs: Joi.array().items(tabSchema),
 	});
-	validateInput(updateSchema, req);
+	validateInput(pageSchema, req);
 	return next();
 };

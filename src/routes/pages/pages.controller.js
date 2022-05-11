@@ -25,7 +25,7 @@ module.exports.getPageById = catchAsync(async (req, res, next) => {
 module.exports.insertPage = catchAsync(async (req, res, next) => {
 	const { page_name, cells, tabs } = req.body;
 	const user_id = req.user.id;
-	let savedCells, savedTabs;
+	let insertedCellIds, insertedTabIds;
 	const page = await models.insertOne('pages', {
 		page_name,
 		user_id,
@@ -36,28 +36,43 @@ module.exports.insertPage = catchAsync(async (req, res, next) => {
 			const { cell_type, content } = { ...cell };
 			return { cell_type, content, page_id: page.id };
 		});
-		savedCells = await models.insertMany('cells', modifiedCells);
+		insertedCellIds = await models.insertMany('cells', modifiedCells);
 	}
 	if (tabs && tabs.length > 0) {
-		const codeCell = savedCells.find((cell) => cell.cell_type === 'code');
-		if (!codeCell) throwError('code cell does not exist', 404);
+		const index = cells.findIndex((cell) => cell.cell_type === 'code');
+		if (index < 0) throwError('code cell does not exist', 404);
 		const modifiedTabs = tabs.map((tab) => {
 			const { code_language, content } = { ...tab };
-			return { code_language, content, cell_id: codeCell.id };
+			return { code_language, content, cell_id: insertedCellIds[index] };
 		});
-		savedTabs = await models.insertMany('tabs', modifiedTabs);
+		await models.insertMany('tabs', modifiedTabs);
 	}
-	res.status(201).json({ page, cells: savedCells, tabs: savedTabs });
+	res.status(201).json(page);
+});
+
+module.exports.updateFullPageById = catchAsync(async (req, res, next) => {
+	const { page_id } = req.params;
+	const { page_name, cells, tabs } = req.body;
+	await models.updateOneById('pages', page_id, { page_name });
+	cells.forEach(
+		async ({ id, content }) =>
+			await models.updateOneById('cells', id, { content })
+	);
+	tabs.forEach(
+		async ({ id, content }) =>
+			await models.updateOneById('tabs', id, { content })
+	);
+	res.status(204).json();
 });
 
 module.exports.updatePageById = catchAsync(async (req, res, next) => {
-	const { page_id = null } = req.params;
+	const { page_id } = req.params;
 	await models.updateOneById('pages', page_id, req.body);
 	res.status(204).json({});
 });
 
 module.exports.deletePageById = catchAsync(async (req, res, next) => {
-	const { page_id = null } = req.params;
+	const { page_id } = req.params;
 	await models.deleteOneById('pages', page_id);
 	res.status(204).json({});
 });

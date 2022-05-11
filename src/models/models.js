@@ -73,7 +73,7 @@ module.exports.insertOne = async (table, data) => {
 	}
 };
 
-module.exports.insertMany = async (table, data = []) => {
+module.exports.insertMany = async (table, data = [], returnNew = false) => {
 	try {
 		const insertQuery = queries.insertMany(table, data);
 		const values = data.map((item) => Object.values(item));
@@ -84,11 +84,14 @@ module.exports.insertMany = async (table, data = []) => {
 		const insertedIds = [];
 		if (!insertId || !affectedRows) throwError('Unable to insert rows', 500);
 		for (i = 0; i < affectedRows; i++) insertedIds.push(insertId + i);
-		const [result, fields1] = await db.query(
-			`SELECT * FROM ${table} WHERE id IN (?)`,
-			[insertedIds]
-		);
-		return result;
+		if (returnNew) {
+			const [result, fields] = await db.query(
+				`SELECT * FROM ${table} WHERE id IN (?)`,
+				[insertedIds]
+			);
+			return result;
+		}
+		return insertedIds;
 	} catch (err) {
 		if (err.errno === 1062) throwError(['Already exists'], 409);
 		if (err.errno === 1452)
