@@ -1,3 +1,8 @@
+module.exports.defaultOptions = {
+	limit: 20,
+	offset: 0,
+};
+
 module.exports.insertMany = (table, data = []) => {
 	const columns = Object.keys(data[0]);
 	const queryBase = `INSERT INTO ${table}(${columns.join(', ')}) VALUES`;
@@ -25,13 +30,15 @@ module.exports.updateOneById = (table, data = {}) => {
 	return result + ' WHERE id=?';
 };
 
-module.exports.findByColumns = (table, data = {}) => {
+module.exports.findByColumns = (table, data = {}, options = defaultOptions) => {
 	const columns = Object.keys(data);
 	const initVal = `SELECT * FROM ${table} WHERE`;
 	const query = columns.reduce((prev, col, i) => {
 		return `${prev} ${col}=?,`;
 	}, initVal);
-	return query.slice(0, -1);
+	return (
+		query.slice(0, -1) + ` LIMIT ${options.limit} OFFSET ${options.offset}`
+	);
 };
 
 module.exports.updateOrderIndex = (table) => {

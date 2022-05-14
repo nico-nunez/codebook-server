@@ -9,7 +9,7 @@ module.exports.getAllUsers = catchAsync(async (req, res, next) => {
 		delete user.hash;
 		return user;
 	});
-	res.status(200).json({ users, details: { page, limit } });
+	res.status(200).json({ users, pagination: { page, limit } });
 });
 
 module.exports.getUserById = catchAsync(async (req, res, next) => {
@@ -34,9 +34,9 @@ module.exports.deleteUserById = catchAsync(async (req, res, next) => {
 
 module.exports.getPagesByUserId = catchAsync(async (req, res, next) => {
 	const { user_id = null } = req.params;
+	const { page, limit, offset } = pagination(req.query.page, req.query.limit);
 	const user = await models.findOneById('users', user_id);
 	if (!user) throwError(['User not found.'], 404);
-	delete user.hash;
-	const pages = await models.findManyByColumns('pages', { user_id });
-	res.status(200).json({ user, pages });
+	const pages = await models.findAllPagesByUserId(user.id, { limit, offset });
+	res.status(200).json({ pages, pagination: { limit, offset } });
 });

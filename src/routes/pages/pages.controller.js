@@ -5,8 +5,8 @@ const { pagination } = require('../../utils/utils');
 
 module.exports.getAllPages = catchAsync(async (req, res, next) => {
 	const { page, limit, offset } = pagination(req.query.page, req.query.limit);
-	const pages = await models.findAll('pages', { limit, offset });
-	res.status(200).json({ pages, details: { page, limit } });
+	const pages = await models.findAllPages({ limit, offset });
+	res.status(200).json({ pages, pagination: { page, limit } });
 });
 
 module.exports.getPageById = catchAsync(async (req, res, next) => {
@@ -29,6 +29,7 @@ module.exports.insertPage = catchAsync(async (req, res, next) => {
 	const page = await models.insertOne('pages', {
 		page_name,
 		user_id,
+		author: req.user.profile_name,
 	});
 	if (!page) throwError('page does not exist', 404);
 	if (cells && cells.length > 0) {

@@ -1,13 +1,9 @@
 const { db } = require('../config/db');
 const { throwError } = require('../utils/error');
 const queries = require('./queries.models');
+const { defaultOptions } = queries;
 
-const findAllOptions = {
-	limit: 20,
-	offset: 1,
-};
-
-module.exports.findAll = async (table, options = findAllOptions) => {
+module.exports.findAll = async (table, options = defaultOptions) => {
 	try {
 		const findAllQuery = `SELECT * FROM ${table} LIMIT ${options.limit} OFFSET ${options.offset}`;
 		const [result, fields] = await db.execute(findAllQuery);
@@ -29,14 +25,14 @@ module.exports.findOneById = async (table, id) => {
 
 module.exports.findManyByColumns = async (
 	table,
-	filters = { column: value }
+	filters = { column: value },
+	options = defaultOptions
 ) => {
 	try {
-		const query = queries.findByColumns(table, filters);
+		const query = queries.findByColumns(table, filters, options);
 		const [result, fields] = await db.query(query, Object.values(filters));
 		return result;
 	} catch (err) {
-		console.log(err);
 		throwError([err.message], 400);
 	}
 };
@@ -140,4 +136,29 @@ module.exports.findAuthorById = async (table, id) => {
 	} catch (err) {
 		throwError([err.message], 400);
 	}
+};
+
+module.exports.findAllPages = async (options = defaultOptions) => {
+	const query = `SELECT pages.*, users.profile_name as author FROM pages
+  INNER JOIN users ON pages.user_id=users.id
+  LIMIT ${options.limit} OFFSET ${options.offset}`;
+	const [result, fields] = await db.execute(query);
+	return result;
+};
+
+module.exports.findAllPagesByUserId = async (id, options = defaultOptions) => {
+	const query = `SELECT pages.*, users.profile_name as author FROM pages
+  INNER JOIN users ON pages.user_id=users.id
+  WHERE pages.user_id= ?
+  LIMIT ${options.limit} OFFSET ${options.offset}`;
+	const [result, fields] = await db.execute(query, [id]);
+	return result;
+};
+
+module.exports.findPageById = async (id) => {
+	const query = `SELECT pages.*, users.profile_name as author FROM pages
+  INNER JOIN users ON pages.user_id=users.id
+  WHERE pages.user_id=?`;
+	const [result, fields] = await db.execute(query, [id]);
+	return result[0];
 };

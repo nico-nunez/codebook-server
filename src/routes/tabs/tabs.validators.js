@@ -22,7 +22,7 @@ const orderSchema = Joi.array()
 module.exports.tabSchema = Joi.object({
 	id: Joi.number(),
 	code_language: languageSchema,
-	content: Joi.string().trim().allow(''),
+	content: Joi.string().trim().allow('').allow(null),
 	cell_id: Joi.number(),
 });
 
