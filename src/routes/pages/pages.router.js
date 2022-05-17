@@ -1,25 +1,27 @@
 const router = require('express').Router();
-const controller = require('./pages.controller');
-const { validPage } = require('./pages.validators');
+const pages = require('./pages.controller');
+const cells = require('../cells/cells.controller');
+const { validPage, validPageFull } = require('./pages.validators');
 const { validCell, validCellsOrder } = require('../cells/cells.validators');
 const { isAuthor, isLoggedIn } = require('../../middleware/validators');
 
+// router.get('/test', pages.test);
+
 router
 	.route('/')
-	.get(controller.getAllPages)
-	.post(isLoggedIn, validPage, controller.insertPage);
+	.get(pages.getAllPages)
+	.put(isLoggedIn, validPage, pages.upsertPage);
 
 router
 	.route('/:page_id')
-	.get(controller.getPageById)
-	.put(isLoggedIn, isAuthor, validPage, controller.updateFullPageById)
-	.patch(isLoggedIn, isAuthor, validPage, controller.updatePageById)
-	.delete(isLoggedIn, isAuthor, controller.deletePageById);
+	.get(pages.getPageById)
+	.put(isLoggedIn, isAuthor, validPageFull, pages.upsertFullPage)
+	.delete(isLoggedIn, isAuthor, pages.deletePageById);
 
 router
 	.route('/:page_id/cells')
-	.get(isLoggedIn, controller.getCellsByPageId)
-	.post(isLoggedIn, isAuthor, validCell, controller.insertCellByPageId)
-	.put(isLoggedIn, isAuthor, validCellsOrder, controller.updateCellsOrder);
+	.get(isLoggedIn, cells.getCellsByPageId)
+	.post(isLoggedIn, isAuthor, validCell, cells.insertCellByPageId)
+	.patch(isLoggedIn, isAuthor, validCellsOrder, cells.updateCellsOrder);
 
 module.exports = router;

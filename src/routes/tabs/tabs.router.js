@@ -1,13 +1,11 @@
 const router = require('express').Router({ mergeParams: true });
-const controller = require('./tabs.controller');
+const tabs = require('./tabs.controller');
 const { isLoggedIn, isAuthor } = require('../../middleware/validators');
-
-// router.get('/', isLoggedIn, controller.getAllTabs);
 
 router
 	.route('/:tab_id')
-	.get(isLoggedIn, controller.getTabById)
-	.put(isLoggedIn, isAuthor, controller.updateTabById)
-	.delete(isLoggedIn, isAuthor, controller.deleteTabById);
+	.get(isLoggedIn, tabs.getTabById)
+	.put(isLoggedIn, isAuthor, tabs.updateTabById)
+	.delete(isLoggedIn, isAuthor, tabs.deleteTabById);
 
 module.exports = router;

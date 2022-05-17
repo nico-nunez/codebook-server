@@ -2,7 +2,6 @@ const models = require('../models/models');
 const { throwError, catchAsync } = require('../utils/error');
 
 module.exports.isLoggedIn = (req, res, next) => {
-	// console.log(new Date(req.session.cookie.expires).getTime());
 	if (!req.isAuthenticated()) {
 		throwError(['Must be logged in'], 403);
 	}
@@ -28,10 +27,8 @@ module.exports.isAuthor = catchAsync(async (req, res, next) => {
 			recordId = null;
 			table = 'pages';
 	}
-	const author = await models.findAuthorById(table, recordId);
-	if (!author) {
-		throwError([`"${table.slice(0, -1)}" does not exist.`], 404);
-	}
+	if (recordId === null) throwError('An id is required', 400);
+	const author = (await models.findAuthorById(table, recordId)) || req.user;
 	if (!req.user || req.user.id !== author.id) {
 		throwError(['Permision denied'], 403);
 	}

@@ -1,16 +1,17 @@
 const router = require('express').Router();
-const controller = require('./users.controller');
+const users = require('./users.controller');
+const pages = require('../pages/pages.controller');
 const { isLoggedIn, isUser } = require('../../middleware/validators');
 const { validUserUpdate } = require('./users.validtors');
 
-router.route('/').get(controller.getAllUsers);
+router.route('/').get(users.getAllUsers);
 
 router
 	.route('/:user_id')
-	.get(isLoggedIn, controller.getUserById)
-	.put(isLoggedIn, isUser, validUserUpdate, controller.updateUserById)
-	.delete(isLoggedIn, isUser, controller.deleteUserById);
+	.get(isLoggedIn, users.getUserById)
+	.put(isLoggedIn, isUser, validUserUpdate, users.updateUserById)
+	.delete(isLoggedIn, isUser, users.deleteUserById);
 
-router.route('/:user_id/pages').get(controller.getPagesByUserId);
+router.route('/:user_id/pages').get(pages.getPagesByUserId);
 
 module.exports = router;

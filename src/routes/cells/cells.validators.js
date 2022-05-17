@@ -1,6 +1,8 @@
 const Joi = require('joi');
 const { validateInput } = require('../../utils/utils');
 
+const idSchema = Joi.alternatives().try(Joi.number(), Joi.string()).required();
+
 const cellTypeSchema = Joi.string()
 	.trim()
 	.lowercase()
@@ -18,7 +20,7 @@ const orderSchema = Joi.array().items(Joi.number().required()).messages({
 
 const contentSchema = Joi.custom((val, helpers) => {
 	const { cell_type } = helpers.state.ancestors[0];
-	if (cell_type === 'text') return val.trim();
+	if (cell_type === 'text' && val) return val.trim();
 	if (val !== null) return helpers.error('any.invalid');
 	return null;
 })
@@ -30,10 +32,13 @@ const contentSchema = Joi.custom((val, helpers) => {
 	});
 
 module.exports.cellSchema = Joi.object({
-	id: Joi.number(),
+	id: idSchema,
+	page_id: idSchema,
 	cell_type: cellTypeSchema,
 	content: contentSchema,
-	page_id: Joi.number(),
+	order_index: Joi.number(),
+	created_at: Joi.date(),
+	updated_at: Joi.date(),
 });
 
 module.exports.validCell = (req, res, next) => {
@@ -42,6 +47,7 @@ module.exports.validCell = (req, res, next) => {
 };
 module.exports.validCellUpdate = (req, res, next) => {
 	const updateSchema = Joi.object({
+		cell_type: cellTypeSchema,
 		content: contentSchema,
 	});
 	validateInput(updateSchema, req);

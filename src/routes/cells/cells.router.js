@@ -1,26 +1,20 @@
 const router = require('express').Router();
-const { isAuthor, isLoggedIn } = require('../../middleware/validators');
-const controller = require('./cells.controller');
-const { validTab, validTabsOrder } = require('../tabs/tabs.validators');
+const cells = require('./cells.controller');
+const tabs = require('../tabs/tabs.controller');
 const { validCellUpdate } = require('./cells.validators');
-
-// router.get('/', isLoggedIn, controller.getAllCells);
+const { isAuthor, isLoggedIn } = require('../../middleware/validators');
+const { validTab, validTabsOrder } = require('../tabs/tabs.validators');
 
 router
 	.route('/:cell_id')
-	.get(isLoggedIn, controller.getCellById)
-	.put(isLoggedIn, isAuthor, validCellUpdate, controller.updateCellById)
-	.delete(isLoggedIn, isAuthor, controller.deleteCellById);
+	.get(isLoggedIn, cells.getCellById)
+	.put(isLoggedIn, isAuthor, validCellUpdate, cells.updateCellById)
+	.delete(isLoggedIn, isAuthor, cells.deleteCellById);
 
 router
 	.route('/:cell_id/tabs')
-	.get(isLoggedIn, controller.getAllTabsByCellId)
-	.post(isLoggedIn, isAuthor, validTab, controller.insertTabByCellId)
-	.put(
-		isLoggedIn,
-		isAuthor,
-		validTabsOrder,
-		controller.updateTabsOrderByCellId
-	);
+	.get(isLoggedIn, tabs.getAllTabsByCellId)
+	.post(isLoggedIn, isAuthor, validTab, tabs.insertTabByCellId)
+	.put(isLoggedIn, isAuthor, validTabsOrder, tabs.updateTabsOrderByCellId);
 
 module.exports = router;

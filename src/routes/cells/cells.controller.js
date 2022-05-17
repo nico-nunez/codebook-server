@@ -37,39 +37,37 @@ module.exports.deleteCellById = catchAsync(async (req, res, next) => {
 	res.status(204).json();
 });
 
-module.exports.getAllTabsByCellId = catchAsync(async (req, res, next) => {
-	const { cell_id } = req.params;
-	const tabs = await models.findManyByColumns('tabs', {
-		cell_id,
-	});
-	res.status(200).json(tabs);
+// PAGES ROUTE
+module.exports.getCellsByPageId = catchAsync(async (req, res, next) => {
+	const { page_id = null } = req.params;
+	const page = await models.findOneById('pages', page_id);
+	if (!page) throwError(['"page" does not exist'], 404);
+	const cells = await models.findManyByColumns('cells', { page_id });
+	res.status(200).json(cells);
 });
 
-module.exports.insertTabByCellId = catchAsync(async (req, res, next) => {
-	const { cell_id } = req.params;
-	const { code_language, content } = req.body;
-	const cell = await models.findOneById('cells', cell_id);
-	if (cell.cell_type === 'text')
-		throwError(['Cannot add "tab" to cell_type [text]'], 400);
-	const insertedTab = await models.insertOne('tabs', {
-		cell_id,
-		code_language,
+module.exports.insertCellByPageId = catchAsync(async (req, res, next) => {
+	const { page_id } = req.params;
+	const { cell_type, content } = req.body;
+	const newCell = await models.insertOne('cells', {
+		cell_type,
 		content,
+		page_id,
 	});
-	res.status(201).json(insertedTab);
+	res.status(201).json(newCell);
 });
 
-module.exports.updateTabsOrderByCellId = catchAsync(async (req, res, next) => {
-	const { cell_id } = req.params;
-	const { tabs_order } = req.body;
-	const cellTabs = await models.findManyByColumns('tabs', { cell_id });
-	if (!cellTabs) throwError(['"cell" does not contain any tabs'], 400);
-	const sortedTabsOrder = [...tabs_order].sort();
-	const sortedTabIds = cellTabs.map((tab) => tab.id).sort();
-	sortedTabsOrder.forEach((tabId, i) => {
-		if (tabId !== sortedTabIds[i])
-			throwError(['"tabs_order" is missing or contains invalid id(s).'], 400);
+module.exports.updateCellsOrder = catchAsync(async (req, res, next) => {
+	const { page_id = null } = req.params;
+	const { cells_order } = req.body;
+	const pageCells = await models.findManyByColumns('cells', { page_id });
+	if (!pageCells) throwError(['"page" does not contain any cells'], 400);
+	const sortedCellsOrder = [...cells_order].sort();
+	const sortedCellIds = pageCells.map((cell) => cell.id).sort();
+	sortedCellsOrder.forEach((cell, i) => {
+		if (cell !== sortedCellIds[i])
+			throwError(['"cells_order" is missing or contains invalid id(s).'], 400);
 	});
-	await models.updateOrderIndexes('tabs', cell_id, tabs_order);
-	res.status(204).json();
+	await models.updateOrderIndexes('cells', page_id, cells_order);
+	res.status(204).json({});
 });

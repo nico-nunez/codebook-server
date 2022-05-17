@@ -1,5 +1,5 @@
 module.exports.defaultOptions = {
-	limit: 20,
+	limit: Infinity,
 	offset: 0,
 };
 
@@ -30,15 +30,13 @@ module.exports.updateOneById = (table, data = {}) => {
 	return result + ' WHERE id=?';
 };
 
-module.exports.findByColumns = (table, data = {}, options = defaultOptions) => {
+module.exports.findByColumns = (table, data = {}) => {
 	const columns = Object.keys(data);
 	const initVal = `SELECT * FROM ${table} WHERE`;
 	const query = columns.reduce((prev, col, i) => {
-		return `${prev} ${col}=?,`;
+		return `${prev} ${col}=? AND `;
 	}, initVal);
-	return (
-		query.slice(0, -1) + ` LIMIT ${options.limit} OFFSET ${options.offset}`
-	);
+	return query.slice(0, -4);
 };
 
 module.exports.updateOrderIndex = (table) => {
@@ -49,4 +47,30 @@ module.exports.updateOrderIndex = (table) => {
 
 module.exports.findAuthorById = (table) => {
 	return `SELECT DISTINCT users.id, users.profile_id, users.profile_name FROM users JOIN pages ON pages.user_id=users.id LEFT JOIN cells ON cells.page_id=pages.id LEFT JOIN tabs ON tabs.cell_id=cells.id WHERE ${table}.id=?`;
+};
+
+module.exports.upsertOne = (table, data = {}) => {
+	const columns = Object.keys(data);
+	const initialQuery = `INSERT INTO ${table} (${columns.join(
+		', '
+	)}) VALUES (?) AS item ON DUPLICATE KEY UPDATE `;
+	const query = columns.reduce((prev, col) => {
+		if (col !== 'id') return (prev += `${col}=item.${col}, `);
+		return prev;
+	}, initialQuery);
+	return query.slice(0, -2);
+};
+
+module.exports.upsertMany = (table, items = []) => {
+	const numItems = items.length;
+	const columns = Object.keys(items[0]);
+	const values = '(?), '.repeat(numItems).slice(0, -2);
+	const initialQuery = `INSERT INTO ${table} (${columns.join(
+		', '
+	)}) VALUES ${values} AS item ON DUPLICATE KEY UPDATE `;
+	const query = columns.reduce((prev, col) => {
+		if (col !== 'id') return (prev += `${col}=item.${col}, `);
+		return prev;
+	}, initialQuery);
+	return query.slice(0, -2);
 };

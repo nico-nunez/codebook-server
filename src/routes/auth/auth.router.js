@@ -1,7 +1,6 @@
 const passport = require('passport');
 const router = require('express').Router();
 const controller = require('./auth.controller');
-const { isLoggedIn } = require('../../middleware/validators');
 const { validRegistration, validLogin } = require('./auth.validators');
 
 const CLIENT_HOMEPAGE = 'http://localhost:3000';

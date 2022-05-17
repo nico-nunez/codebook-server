@@ -25,11 +25,10 @@ module.exports.findOneById = async (table, id) => {
 
 module.exports.findManyByColumns = async (
 	table,
-	filters = { column: value },
-	options = defaultOptions
+	filters = { column: value }
 ) => {
 	try {
-		const query = queries.findByColumns(table, filters, options);
+		const query = queries.findByColumns(table, filters);
 		const [result, fields] = await db.query(query, Object.values(filters));
 		return result;
 	} catch (err) {
@@ -43,10 +42,7 @@ module.exports.findOneByColumns = async (
 ) => {
 	try {
 		const query = queries.findByColumns(table, filters);
-		const [result, fields] = await db.execute(
-			query + ' LIMIT 1',
-			Object.values(filters)
-		);
+		const [result, fields] = await db.execute(query, Object.values(filters));
 		return result[0];
 	} catch (err) {
 		console.log(err);
@@ -100,8 +96,10 @@ module.exports.updateOneById = async (table, id, data) => {
 	try {
 		const updateQuery = queries.updateOneById(table, data);
 		const values = Object.values(data).map((value) => value || null);
-		const [result, fields] = await db.execute(updateQuery, [...values, id]);
-		return result.affectedRows > 0;
+		await db.execute(updateQuery, [...values, id]);
+		const item = await db.execute(`SELECT * FROM ${table} WHERE id=?`, id);
+		if (!item) throwError('Record not found', 404);
+		return item;
 	} catch (err) {
 		throwError([err.message], 400);
 	}
@@ -161,4 +159,26 @@ module.exports.findPageById = async (id) => {
   WHERE pages.user_id=?`;
 	const [result, fields] = await db.execute(query, [id]);
 	return result[0];
+};
+
+module.exports.upsertOne = async (table, data) => {
+	const dataCopy = { ...data };
+	delete dataCopy.created_at;
+	const values = Object.values(dataCopy);
+	const query = queries.upsertOne(table, dataCopy);
+	const [result, fields] = await db.query(query, [values]);
+	const item_id = result.insertId || dataCopy.id;
+	return item_id;
+};
+module.exports.upsertMany = async (table, dataArr = []) => {
+	const itemsData = dataArr.map((item) => {
+		const data = { ...item };
+		data.id = typeof data.id === 'number' ? data.id : null;
+		delete data.created_at;
+		return data;
+	});
+	const values = itemsData.map((data) => Object.values(data));
+	const query = queries.upsertMany(table, itemsData);
+	const [result, fields] = await db.query(query, values);
+	return result;
 };

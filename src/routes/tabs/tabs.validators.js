@@ -1,6 +1,8 @@
 const Joi = require('joi');
 const { validateInput } = require('../../utils/utils');
 
+const idSchema = Joi.alternatives().try(Joi.number(), Joi.string()).required();
+
 const languageSchema = Joi.string()
 	.trim()
 	.lowercase()
@@ -20,10 +22,13 @@ const orderSchema = Joi.array()
 	});
 
 module.exports.tabSchema = Joi.object({
-	id: Joi.number(),
+	id: idSchema,
+	cell_id: idSchema,
 	code_language: languageSchema,
 	content: Joi.string().trim().allow('').allow(null),
-	cell_id: Joi.number(),
+	order_index: Joi.number(),
+	created_at: Joi.date(),
+	updated_at: Joi.date(),
 });
 
 module.exports.validTab = (req, res, next) => {
