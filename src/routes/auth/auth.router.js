@@ -3,7 +3,7 @@ const router = require('express').Router();
 const controller = require('./auth.controller');
 const { validRegistration, validLogin } = require('./auth.validators');
 
-const CLIENT_HOMEPAGE = 'http://localhost:3000';
+const CLIENT_HOMEPAGE = process.env.CLIENT_HOMEPAGE || 'http://localhost:3000';
 
 // @desc: Local regisitration
 router.post('/register', validRegistration, controller.register);
